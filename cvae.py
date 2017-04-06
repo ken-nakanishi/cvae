@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from sklearn.utils import shuffle
 from theano.tensor.shared_randomstreams import RandomStreams
 
@@ -5,18 +6,14 @@ import numpy as np
 import theano
 import theano.tensor as T
 
-###
-# import dataload.mnist as dataload
-import dataload.cifar10 as dataload
+import dataload.mnist as dataload
 
-# get_ipython().magic('matplotlib inline')
 import matplotlib.pyplot as plt
-plt.interactive(False)
 
 debug_test = False
 
-rng = np.random.RandomState(1234)
-theano_rng = RandomStreams(rng.randint(345))
+rng = np.random.RandomState(101)
+theano_rng = RandomStreams(rng.randint(102))
 
 train_X, test_X, train_y, test_y, data_shape = dataload.prepare_dataset(debug_test=debug_test, y_onehot=True)
 
@@ -54,7 +51,7 @@ class Layer:
 
 
 class VAE:
-    def __init__(self, q, p, random=1234):
+    def __init__(self, q, p, random=103):
         self.q = q
         self.p = p
         self.srng = RandomStreams(seed=random)
@@ -122,15 +119,9 @@ def adam(params, g_params, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
         v_t = (b2 * T.sqr(g)) + ((1. - b2) * v)
         g_t = m_t / (T.sqrt(v_t) + e)
         p_t = p - (lr_t * g_t)
-        # updates.append((m, m_t.astype(dtype=theano.config.floatX)))
-        # updates.append((v, v_t.astype(dtype=theano.config.floatX)))
-        # updates.append((p, p_t.astype(dtype=theano.config.floatX)))
         updates.append((m, m_t.astype(dtype="float32")))
         updates.append((v, v_t.astype(dtype="float32")))
         updates.append((p, p_t.astype(dtype="float32")))
-        # updates.append((m, m_t))
-        # updates.append((v, v_t))
-        # updates.append((p, p_t))
 
     updates.append((i, i_t))
     return updates
@@ -182,7 +173,7 @@ lr_change_num = 3
 
 for _ in range(lr_change_num):
     for epoch in range(epoch_num):
-        shuffle(train_X, train_y, random_state=567)
+        shuffle(train_X, train_y, random_state=104)
         lowerbound_all = []
         for i in range(n_batches):
             start = i * batch_size
@@ -203,5 +194,4 @@ for _ in range(lr_change_num):
 
 plt.plot(range(epoch_num * lr_change_num), hoge, color='r')
 plt.plot(range(epoch_num * lr_change_num), fuga, color='b')
-plt.show()
-
+plt.savefig('output.png')
